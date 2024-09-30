@@ -1,0 +1,65 @@
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin()
+Plug 'jsfaint/gen_tags.vim'
+Plug 'rhysd/vim-clang-format'
+Plug 'dense-analysis/ale'
+Plug 'frazrepo/vim-rainbow'
+Plug 'mechatroner/rainbow_csv'
+Plug 'pelodelfuego/vim-swoop'
+Plug 'github/copilot.vim'
+call plug#end()
+
+let g:rbql_with_headers = 1
+let g:gen_tags#ctags_auto_gen=1
+let g:clang_format#detect_style_file=1
+let g:ale_c_build_dir_names='release'
+let g:ale_linters = {'cpp': ['cppcheck','clang-check'], 'python': ['ruff']}
+
+function SearchFor(var_word)
+				exe 'silent grep ' . a:var_word . ' $(find . -path ./venv -prune -o -name "*.cpp" -o -name "*.h" -o -name "*.py" -o -name "*.html" -o -name "*.js" -o -name "*.css")'
+				copen
+				nnoremap <buffer> <Down> <Down><CR><C-w>p
+				nnoremap <buffer> <Up> <Up><CR><C-w>p
+endfunction
+nnoremap gr :call SearchFor(expand('<cword>'))<CR>
+nnoremap gR :exe input("", "call SearchFor(\"\")")<CR><Left><Left>
+
+autocmd FileType cpp setlocal shiftwidth=2 softtabstop=2 expandtab
+set tabstop=2
+
+set colorcolumn=100
+highlight ColorColumn ctermbg=2
+set ruler
+
+function Dinosync(dir)
+				exe "silent !rsync -a --exclude=\".git\" ./ -e ssh hbouvier@dinostrate://home/ldap/hbouvier/" . a:dir . "/"
+endfunction
+
+nnoremap \bs :call SearchOnBuffers()<CR>
+nnoremap \sk :bd! swoopBuf<CR>
+
+"Reminder for gen_tags
+"Ctrl+\ c    Find functions calling this function
+"Ctrl+\ d    Find functions called by this function
+"Ctrl+\ e    Find this egrep pattern
+"Ctrl+\ f    Find this file
+"Ctrl+\ g    Find this definition
+"Ctrl+\ i    Find files #including this file
+"Ctrl+\ s    Find this C symbol
+"Ctrl+\ t    Find this text string
+"
+"vimrc Matthieu
+"
+"nnoremap <silent> <F6>
+"       \ <Bar> :let _s=@/ <CR>
+"       \ <Bar> :silent! %s@\<C-v><Esc>\[[ABCDEFGHJKST]@@g<CR>
+"       \ <Bar> :silent! %s@\<C-v><Esc>\[[^m]*m@@g<CR>
+"       \ <Bar> :silent! %s@\<C-v><Esc>\[@@g<CR>
+"       \ <Bar> :let @/=_s <CR>
+"       \ <Bar> :unlet _s <CR>
+
