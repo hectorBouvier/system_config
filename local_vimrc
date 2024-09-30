@@ -1,0 +1,12 @@
+set makeprg=ssh\ dinostrate\ 'cd\ optistow-data/build\ &&\ make\ -j20'
+function GetMakeError()
+				let qflist=[]
+				for item in getqflist()
+								let item.filename=fnamemodify(bufname(item['bufnr']), ':s?/home/ldap/hbouvier/optistow-data/??')
+								unlet item.bufnr
+								let qflist+=[item]
+				endfor
+				call setqflist(qflist)
+endfunction
+command Build call Dinosync("optistow-data") | silent make | call GetMakeError() | copen
+
